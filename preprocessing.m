@@ -25,7 +25,7 @@ stopt  = min([Supply.Timeinfo.End, Demand.Timeinfo.End]);
 %% System parameters
 
 % transport from supply
-aSupplyTransport = 0.0; % Dissipation coefficient
+aSupplyTransport = 0.0396; % Dissipation coefficient of transformers
 
 % injection system
 aInjection = 0.2; % Dissipation coefficient
@@ -40,4 +40,4 @@ bStorage        = 1e-6/unit("s");  % Storage dissipation coefficient
 aExtraction = 0.1; % Dissipation coefficient
 
 % transport to demand
-aDemandTransport = 0.01; % Dissipation coefficient
+aDemandTransport = 0.02; % Dissipation coefficient
