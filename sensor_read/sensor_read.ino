@@ -1,16 +1,18 @@
-//pressure
-const int pressurePin = A0;
-const int offset = 201; // zero pressure adjust
-const int fullScale = 1023; // max pressure adjust
-float pressureType = 1000.0; // kPa
+const float fullScale = 1023; // conversion to volts
+
+// Pressure
+const unsigned char pressurePin = A0;
+//const int offset = 205; // zero pressure adjust
+//float pressureType = 1000.0; // kPa
 float pressure; // final pressure
+float buffer[10];
+float buffered = 0;
+int currentStep = 1;
+
 
 //flow
-byte sensorInterrupt = 0;  // 0 = digital pin 2
-byte sensorPin       = 2;
-float calibrationFactor = 4.5;
-volatile byte pulseCount;  
-float flowRate;
+const unsigned char sensorPin = A1;
+float flowRate = 0;
 //unsigned int flowMilliLitres;
 //unsigned long totalMilliLitres;
 unsigned long oldTime;
@@ -21,31 +23,26 @@ const unsigned long startTime = millis();
 void setup() {
   Serial.begin(9600);
 
-  pulseCount        = 0;
-  flowRate          = 0.0;
-  //flowMilliLitres   = 0;
-  //totalMilliLitres  = 0;
-  oldTime           = 0;
+  oldTime = 0;
 
-  attachInterrupt(sensorInterrupt, pulseCounter, FALLING);
+  for(int i = 0; i < 10; i++){
+    buffer[i] = 0;
+  }
 }
 
 void loop() {
   if((millis() - oldTime) > sampleRate)
   { 
-    // Disable the interrupt while calculating flow rate and sending the value to
-    // the host
-    detachInterrupt(sensorInterrupt);
         
     // Because this loop may not complete in exactly 1 second intervals we calculate
     // the number of milliseconds that have passed since the last execution and use
     // that to scale the output. We also apply the calibrationFactor to scale the output
     // based on the number of pulses per second per units of measure (litres/minute in
     // this case) coming from the sensor.
-    flowRate = ((1000.0 / (millis() - oldTime)) * pulseCount) / calibrationFactor;
-    
+    flowRate = analogRead(A1) * (5 / fullScale) * 200000; // In l/m
+
     // Pressure measurement
-    pressure = (analogRead(pressurePin) - offset) * pressureType / (fullScale - offset);
+    pressure = analogRead(A0) * (5 / fullScale) * 250000 / 100000; // In bars
     
     // Note the time this processing pass was executed. Note that because we've
     // disabled interrupts the millis() function won't actually be incrementing right
@@ -53,32 +50,26 @@ void loop() {
     // interrupts went away.
     oldTime = millis();
     
-    // Divide the flow rate in litres/minute by 60 to determine how many litres have
-    // passed through the sensor in this 1 second interval, then multiply by 1000 to
-    // convert to millilitres.
     //flowMilliLitres = (flowRate / 60) * 1000;
     
-    // Add the millilitres passed in this second to the cumulative total
     //totalMilliLitres += flowMilliLitres;
     
     // Print the flow rate for this second in litres / minute
-    Serial.print(oldTime);
+    Serial.print(float(oldTime) / 1000);
     Serial.print(", ");
     Serial.print(flowRate, 4);
     Serial.print(", ");
-    Serial.println(pressure, 4);
+    Serial.print(pressure, 4);
+    Serial.print(", ");
     
-
-    // Reset the pulse counter so we can start incrementing again
-    pulseCount = 0;
+    buffer[currentStep % 10] = pressure;
+    currentStep++;
+    buffered = 0;
+    for (int i = 0; i < 10; i++){
+      buffered += buffer[i];
+    }
+    buffered = buffered/10;
     
-    // Enable the interrupt again now that we've finished sending output
-    attachInterrupt(sensorInterrupt, pulseCounter, FALLING);
+    Serial.println(buffered);
   }  
-}
-
-void pulseCounter()
-{
-  // Increment the pulse counter
-  pulseCount++;
 }
