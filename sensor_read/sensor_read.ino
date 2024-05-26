@@ -39,10 +39,17 @@ void loop() {
     // that to scale the output. We also apply the calibrationFactor to scale the output
     // based on the number of pulses per second per units of measure (litres/minute in
     // this case) coming from the sensor.
-    flowRate = analogRead(flowPin) * (5 / fullScale) * 250000; // In l/m
+    flowRate = (analogRead(flowPin) * (5 / fullScale) - 1) * 250000; // In l/m
 
     // Pressure measurement
-    pressure = analogRead(pressurePin) * (5 / fullScale) * 250000 / 100000; // In bars
+    pressure = (analogRead(pressurePin) * (5 / fullScale) - 1) * 250000 / 100000; // In bars
+
+    if (flowRate < 0){
+      flowRate = 0;
+    }
+    if (pressure < 0){
+      pressure = 0;
+    }
     
     // Note the time this processing pass was executed. Note that because we've
     // disabled interrupts the millis() function won't actually be incrementing right
