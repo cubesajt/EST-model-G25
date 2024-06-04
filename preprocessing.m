@@ -29,8 +29,6 @@ aSupplyTransport = 0.0396; % Dissipation coefficient of transformers
 
 % injection system
 aInjection = 0.2; % Dissipation coefficient
-pCompressor = 3.31*unit("kW"); % Power of Compressor
-numCompressors = 94; % Number of Compressors
 
 % storage system
 EStorageMax     = 13.1.*unit("GWh"); % Maximum energy
