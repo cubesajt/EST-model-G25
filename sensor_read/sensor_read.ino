@@ -5,7 +5,8 @@ const unsigned char pressurePin = A0;
 //const int offset = 205; // zero pressure adjust
 //float pressureType = 1000.0; // kPa
 float pressure; // final pressure
-float buffer[10];
+const unsigned int bufferSize = 10;
+float buffer[bufferSize];
 float buffered = 0;
 int currentStep = 1;
 
@@ -17,11 +18,13 @@ float flowRate = 0;
 //unsigned long totalMilliLitres;
 unsigned long oldTime;
 
-const unsigned int sampleRate = 50; //in ms
+const unsigned int sampleRate = 5; //in ms
 const unsigned long startTime = millis();
 
 void setup() {
+  //Serial.begin(115200);
   Serial.begin(9600);
+
 
   oldTime = 0;
 
@@ -39,7 +42,10 @@ void loop() {
     // that to scale the output. We also apply the calibrationFactor to scale the output
     // based on the number of pulses per second per units of measure (litres/minute in
     // this case) coming from the sensor.
-    flowRate = (analogRead(flowPin) * (5 / fullScale) - 1) * 250000; // In l/m
+    flowRate = (analogRead(flowPin) * (5 / fullScale)) * 45 - 25; // In l/m
+    if (flowRate < 20){
+      flowRate = 0;
+    }
 
     // Pressure measurement
     pressure = (analogRead(pressurePin) * (5 / fullScale) - 1) * 250000 / 100000; // In bars
@@ -62,20 +68,20 @@ void loop() {
     //totalMilliLitres += flowMilliLitres;
     
     // Print the flow rate for this second in litres / minute
-    Serial.print(float(oldTime) / 1000);
+    Serial.print(float(oldTime) / 1000, 3);
     Serial.print(", ");
     Serial.print(flowRate, 4);
     Serial.print(", ");
     Serial.print(pressure, 4);
     Serial.print(", ");
     
-    buffer[currentStep % 10] = pressure;
+    buffer[currentStep % bufferSize] = pressure;
     currentStep++;
     buffered = 0;
-    for (int i = 0; i < 10; i++){
+    for (int i = 0; i < bufferSize; i++){
       buffered += buffer[i];
     }
-    buffered = buffered/10;
+    buffered = buffered/bufferSize;
     
     Serial.println(buffered);
   }  
