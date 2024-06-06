@@ -1,4 +1,4 @@
-data = readmatrix('data.csv');
+data = readmatrix('mes5.csv');
 time = data(:, 1);
 flowrate = data(:, 2);
 pressure = data(:, 3);
@@ -13,7 +13,7 @@ ylabel('Flowrate (L/s)');
 title('Flowrate vs Time');
 grid on;
 
-%subplot(1, 2, 2);
+subplot(2, 2, 2);
 plot(time, pressure);
 xlabel('Time (s)');
 ylabel('Pressure (bar)');

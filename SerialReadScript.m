@@ -1,6 +1,6 @@
 clear, close all, clc;
 %% txt file
-fileName = 'data.csv';    % enter name of file to write data to
+fileName = 'mes5.csv';    % enter name of file to write data to
 
 fileID = fopen(fileName,'w');
 %% setup serial port
