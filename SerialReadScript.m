@@ -4,8 +4,8 @@ fileName = 'data.csv';    % enter name of file to write data to
 
 fileID = fopen(fileName,'w');
 %% setup serial port
-port = 'COM8';                  % set serial port where the arduino is connected (e.g. 'COM4' on Windows or '/dev/cu.usbmodem11101' on Mac OSX)
-baudRate = 9600;                % set baud rate to the same value as in the arduino script
+port = 'COM6';                  % set serial port where the arduino is connected (e.g. 'COM4' on Windows or '/dev/cu.usbmodem11101' on Mac OSX)
+baudRate = 115200;                % set baud rate to the same value as in the arduino script
 
 s = serialport(port,baudRate);
 %% GUI
