@@ -25,21 +25,21 @@ stopt  = min([Supply.Timeinfo.End, Demand.Timeinfo.End]);
 %% System parameters
 
 % transport from supply
-aSupplyTransport = 0.0396; % Dissipation coefficient of transformers
+aSupplyTransport = 0.055; % Dissipation coefficient of transformers
 
 % injection system
-aInjection = 0.2; % Dissipation coefficient
+aInjection = 0.4; % Dissipation coefficient
 pCompressor = 3.31*unit("kW"); % Power of Compressor
 numCompressors = 94; % Number of Compressors
 
 % storage system
 EStorageMax     = 13.1.*unit("GWh"); % Maximum energy
 EStorageMin     = 0.0*unit("kWh"); % Minimum energy
-EStorageInitial = 0.0*unit("kWh"); % Initial energy
+EStorageInitial = 0.0*unit("GWh"); % Initial energy
 bStorage        = 1e-6/unit("s");  % Storage dissipation coefficient
 
 % extraction system
-aExtraction = 0.1; % Dissipation coefficient
+aExtraction = 0.4; % Dissipation coefficient
 
 % transport to demand
-aDemandTransport = 0.02; % Dissipation coefficient
+aDemandTransport = 0.037; % Dissipation coefficient
