@@ -37,6 +37,10 @@ EStorageMax     = 6.94.*unit("GWh"); % Maximum energy
 EStorageMin     = 0.0*unit("kWh"); % Minimum energy
 EStorageInitial = 2.0*unit("GWh"); % Initial energy
 bStorage        = 1e-6/unit("s");  % Storage dissipation coefficient
+tankVolume      = 1000; % m3
+numTank         = 10000;
+tankPres        = 7000000; %Pa
+extractionPipeRad = 0.03;
 
 % extraction system
 aExtraction = 0.4; % Dissipation coefficient
