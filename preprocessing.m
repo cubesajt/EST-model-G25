@@ -1,36 +1,103 @@
-% Pre-processing script for the EST Simulink model. This script is invoked
-% before the Simulink model starts running (initFcn callback function).
+% Post-processing script for the EST Simulink model. This script is invoked
+% after the Simulink model is finished running (stopFcn callback function).
 
-%% Load the supply and demand data
+close all;
+figure;
 
-timeUnit   = 's';
+%% Supply and demand
+subplot(3,3,1);
+plot(tout/unit("day"), PSupply/unit("W"));
+hold on;
+plot(tout/unit("day"), PDemand/unit("W"));
+xlim([0 tout(end)/unit("day")]);
+grid on;
+title('Supply and demand');
+xlabel('Time [day]');
+ylabel('Power [W]');
+legend("Supply","Demand");
 
-supplyFile = "Team25_supply.csv";
-supplyUnit = "MW";
+%% Stored energy
+subplot(3,3,2);
+plot(tout/unit("day"), EStorage/unit("J"));
+xlim([0 tout(end)/unit("day")]);
+grid on;
+title('Storage');
+xlabel('Time [day]');
+ylabel('Energy [J]');
 
-% load the supply data
-Supply = loadSupplyData(supplyFile, timeUnit, supplyUnit);
+%% Energy losses
+subplot(3,3,3);
+plot(tout/unit("day"), D/unit("W"));
+xlim([0 tout(end)/unit("day")]);
+grid on;
+title('Losses');
+xlabel('Time [day]');
+ylabel('Dissipation rate [W]');
 
-demandFile = "Team25_demand.csv";
-demandUnit = "MW";
+%% Load balancing
+subplot(3,3,4);
+plot(tout/unit("day"), PSell/unit("W"));
+hold on;
+plot(tout/unit("day"), PBuy/unit("W"));
+xlim([0 tout(end)/unit("day")]);
+grid on;
+title('Load balancing');
+xlabel('Time [day]');
+ylabel('Power [W]');
+legend("Sell","Buy");
 
-% load the demand data
-Demand = loadDemandData(demandFile, timeUnit, demandUnit);
+%% Power vs. time
+subplot(3,3,5);
+plot(tout/unit("day"), PSupply/unit("W"));
+hold on;
+plot(tout/unit("day"), PDemand/unit("W"));
+plot(tout/unit("day"), PSell/unit("W"));
+plot(tout/unit("day"), PBuy/unit("W"));
+xlim([0 tout(end)/unit("day")]);
+grid on;
+title('Power vs. Time');
+xlabel('Time [day]');
+ylabel('Power [W]');
+legend("Supply","Demand","Sell","Buy");
 
-%% Simulation settings
+%% Efficiency vs. time
+Efficiency = (PDemand - D) ./ PSupply * 100; % Calculate efficiency as percentage
+subplot(3,3,6);
+plot(tout/unit("day"), Efficiency);
+xlim([0 tout(end)/unit("day")]);
+grid on;
+title('Efficiency vs. Time');
+xlabel('Time [day]');
+ylabel('Efficiency [%]');
 
-deltat = 5*unit("min");
-stopt  = min([Supply.Timeinfo.End, Demand.Timeinfo.End]);
+%% Pie charts
 
-%% System parameters
+% integrate the power signals in time
+EfromSupplyTransport = trapz(tout, PfromSupplyTransport);
+EtoDemandTransport   = trapz(tout, PtoDemandTransport);
+ESell                = trapz(tout, PSell);
+EBuy                 = trapz(tout, PBuy);
+EtoInjection         = trapz(tout, PtoInjection);
+EfromExtraction      = trapz(tout, PfromExtraction);
+EStorageDissipation  = trapz(tout, DStorage);
+EDirect              = EfromSupplyTransport - ESell - EtoInjection;
+ESurplus             = EtoInjection-EfromExtraction-EStorageDissipation;
 
-% transport from supply
-aSupplyTransport = 0.055; % Dissipation coefficient of transformers
+figure;
+tiles = tiledlayout(1,2);
 
-% injection system
-aInjection = 0.4; % Dissipation coefficient
-pCompressor = 3.31*unit("kW"); % Power of Compressor
-numCompressors = 10000; % Number of Compressors
+ax = nexttile;
+pie(ax, [EDirect, EtoInjection, ESell]/EfromSupplyTransport);
+lgd = legend({"Direct to demand", "To storage", "Sold"});
+lgd.Layout.Tile = "south";
+title(sprintf("Received energy %3.2e [J]", EfromSupplyTransport/unit('J')));
+
+
+ax = nexttile;
+pie(ax, [EDirect, EfromExtraction, EBuy]/EtoDemandTransport);
+lgd = legend({"Direct from supply", "From storage", "Bought"});
+lgd.Layout.Tile = "south";
+title(sprintf("Delivered energy %3.2e [J]", EtoDemandTransport/unit('J')));
 
 % storage system
 EStorageMax     = 6.94.*unit("GWh"); % Maximum energy
@@ -47,3 +114,4 @@ aExtraction = 0.4; % Dissipation coefficient
 
 % transport to demand
 aDemandTransport = 0.037; % Dissipation coefficient
+
