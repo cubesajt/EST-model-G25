@@ -1,4 +1,4 @@
-data = readmatrix('mes5.csv');
+data = readmatrix('data.csv');
 time = data(:, 1);
 flowrate = data(:, 2);
 pressure = data(:, 3);
