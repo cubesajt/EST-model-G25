@@ -137,7 +137,7 @@ ylabel('Power [W]');
 legend("Supply","Demand","Sell","Buy");
 
 %% Efficiency vs. time
-Efficiency = (PDemand - D) ./ PSupply * 100; % Calculate efficiency as percentage
+Efficiency =100 - D ./ (PSupply*900)*100; % Calculate efficiency as percentage
 subplot(3,3,6);
 plot(tout/unit("day"), Efficiency);
 xlim([0 tout(end)/unit("day")]);
